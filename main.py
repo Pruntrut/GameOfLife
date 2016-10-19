@@ -65,28 +65,32 @@ def update(cell_list):
 
     for i, update_cell in enumerate(cell_list):
         cells_around = [cell for cell in cell_list if cell_near(cell, update_cell)]
-
         if len(cells_around) < 3:
             delete_cell_list.append(update_cell)
         elif len(cells_around) > 4:
             delete_cell_list.append(update_cell)
 
-        create_cell_list = check_neighbours(update_cell, cell_list)
+        create_cell_list.append(check_neighbours(update_cell, cell_list))
+
 
     # Delete dead cells
     new_cell_list = [cell for cell in cell_list if cell not in delete_cell_list]
 
     # Add new cells
-    for cell in create_cell_list:
-        new_cell_list.append(cell)
+    for list_of_cell_list in create_cell_list:
+        for cell in list_of_cell_list:
+            if cell not in new_cell_list:
+                new_cell_list.append(cell)
 
     return new_cell_list
 
 
 # --- Main ---
-cell_list = [(1, 2), (2, 2), (3, 2)]
 
-for i in range(100):
+cell_list = [(0, 0), (1, 0), (2, 0), (0, 1), (2, 1), (0, 2), (2, 2), (1, 3)]
+draw_cells(cell_list)
+
+for i in range(20):
     cell_list = update(cell_list)
     draw_cells(cell_list)
     sleep(0.5)
