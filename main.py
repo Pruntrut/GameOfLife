@@ -1,4 +1,4 @@
-from copy import deepcopy
+from time import sleep
 
 
 def draw_cells(cell_list, padx=2, pady=2):
@@ -46,14 +46,47 @@ def get_neighbours(update_cell):
     return surrounding_cells
 
 
-def update(cell_list):
-    new_cell_list = deepcopy(cell_list)
+def check_neighbours(update_cell, cell_list):
+    neighbours = get_neighbours(update_cell)
+    new_cell_list = []
 
-    for update_cell, i in cell_list:
+    for c in neighbours:
+        cells_around = [cell for cell in cell_list if cell_near(cell, c)]
+
+        if len(cells_around) == 3 and c not in cell_list:
+            new_cell_list.append(c)
+
+    return new_cell_list
+
+
+def update(cell_list):
+    delete_cell_list = []
+    create_cell_list = []
+
+    for i, update_cell in enumerate(cell_list):
         cells_around = [cell for cell in cell_list if cell_near(cell, update_cell)]
 
         if len(cells_around) < 3:
-            new_cell_list.pop(i)
+            delete_cell_list.append(update_cell)
         elif len(cells_around) > 4:
-            new_cell_list.pop(i)
+            delete_cell_list.append(update_cell)
 
+        create_cell_list = check_neighbours(update_cell, cell_list)
+
+    # Delete dead cells
+    new_cell_list = [cell for cell in cell_list if cell not in delete_cell_list]
+
+    # Add new cells
+    for cell in create_cell_list:
+        new_cell_list.append(cell)
+
+    return new_cell_list
+
+
+# --- Main ---
+cell_list = [(1, 2), (2, 2), (3, 2)]
+
+for i in range(100):
+    cell_list = update(cell_list)
+    draw_cells(cell_list)
+    sleep(0.5)
