@@ -1,23 +1,46 @@
 from time import sleep
 
 
-def draw_cells(cell_list, padx=2, pady=2):
-    max_x = max([cell[0] for cell in cell_list]) + padx
-    min_x = min([cell[0] for cell in cell_list]) - padx
-    max_y = max([cell[1] for cell in cell_list]) + pady
-    min_y = min([cell[1] for cell in cell_list]) - padx
-
-    for i in range(min_y, max_y + 1):
+def draw_cells(cell_list, world=(0, 0, 0, 0)):
+    cell_world = create_world(cell_list)
+    
+    new_world = []
+    
+    for i in range(0, len(world)):
+        if abs(world[i]) < abs(cell_world[i]):
+            new_world.append(cell_world[i])
+        else:
+            new_world.append(world[i])
+    
+    print("\n", end="")
+    for i in range(abs(new_world[2] - new_world[3]) + 1):
+        print("%", end="")
+    print("\n", end="")
+    
+    print("\n", end="")
+    
+    for i in range(new_world[3], new_world[2] + 1):
         cells_on_row = [cell for cell in cell_list if cell[1] == i]
 
-        for j in range(min_x, max_x + 1):
+        for j in range(new_world[1], new_world[0] + 1):
             if j in [cell[0] for cell in cells_on_row]:
                 print("#", end="")
             else:
                 print(".", end="")
 
         print("\n", end="")
+        
+    return new_world
 
+
+def create_world(cell_list, padx=2, pady=2):
+    max_x = max([cell[0] for cell in cell_list]) + padx
+    min_x = min([cell[0] for cell in cell_list]) - padx
+    max_y = max([cell[1] for cell in cell_list]) + pady
+    min_y = min([cell[1] for cell in cell_list]) - padx
+    
+    return (max_x, min_x, max_y, min_y)
+    
 
 def cell_near(comp_cell, update_cell):
     x = False
@@ -87,10 +110,10 @@ def update(cell_list):
 
 # --- Main ---
 
-cell_list = [(0, 0), (1, 0), (2, 0), (0, 1), (2, 1), (0, 2), (2, 2), (1, 3)]
-draw_cells(cell_list)
+cell_list = [(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)]
+world = draw_cells(cell_list)
 
 for i in range(20):
     cell_list = update(cell_list)
-    draw_cells(cell_list)
+    world = draw_cells(cell_list, world)
     sleep(0.5)
