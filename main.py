@@ -1,28 +1,22 @@
-from time import sleep
 
 
 def draw_cells(cell_list, world=(0, 0, 0, 0)):
     cell_world = create_world(cell_list)
     
-    new_world = []
-    
-    for i in range(0, len(world)):
-        if abs(world[i]) < abs(cell_world[i]):
-            new_world.append(cell_world[i])
-        else:
-            new_world.append(world[i])
-    
+    new_world = get_biggest_world(cell_world, world)
+
+    # Print generation seperators
     print("\n", end="")
-    for i in range(abs(new_world[2] - new_world[3]) + 1):
+    for i in range(abs(new_world[0] - new_world[2]) + 1):
         print("%", end="")
     print("\n", end="")
     
     print("\n", end="")
     
-    for i in range(new_world[3], new_world[2] + 1):
+    for i in range(new_world[1], new_world[3] + 1):
         cells_on_row = [cell for cell in cell_list if cell[1] == i]
 
-        for j in range(new_world[1], new_world[0] + 1):
+        for j in range(new_world[0], new_world[2] + 1):
             if j in [cell[0] for cell in cells_on_row]:
                 print("#", end="")
             else:
@@ -38,9 +32,34 @@ def create_world(cell_list, padx=2, pady=2):
     min_x = min([cell[0] for cell in cell_list]) - padx
     max_y = max([cell[1] for cell in cell_list]) + pady
     min_y = min([cell[1] for cell in cell_list]) - padx
-    
-    return (max_x, min_x, max_y, min_y)
-    
+
+    return min_x, min_y, max_x, max_y
+
+
+def get_biggest_world(world1, world2):
+    new_world = [0] * 4
+
+    # Get rightmost and leftmost x coords
+    x_list = []
+
+    for i in range(0, 4, 2):
+        x_list.append(world1[i])
+        x_list.append(world2[i])
+
+    new_world[0] = min(x_list)
+    new_world[2] = max(x_list)
+
+    y_list = []
+
+    for i in range(1, 4, 2):
+        y_list.append(world1[i])
+        y_list.append(world2[i])
+
+    new_world[1] = min(y_list)
+    new_world[3] = max(y_list)
+
+    return new_world
+
 
 def cell_near(comp_cell, update_cell):
     x = False
@@ -95,7 +114,6 @@ def update(cell_list):
 
         create_cell_list.append(check_neighbours(update_cell, cell_list))
 
-
     # Delete dead cells
     new_cell_list = [cell for cell in cell_list if cell not in delete_cell_list]
 
@@ -109,11 +127,14 @@ def update(cell_list):
 
 
 # --- Main ---
+if __name__ == "__main__":
 
-cell_list = [(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)]
-world = draw_cells(cell_list)
+    cell_list = [(1, 0), (2, 1), (0, 2), (1, 2), (2, 2)]
+    world = draw_cells(cell_list)
 
-for i in range(20):
-    cell_list = update(cell_list)
-    world = draw_cells(cell_list, world)
-    sleep(0.5)
+    for i in range(30):
+        print("Generation %d" % (i + 1))
+        cell_list = update(cell_list)
+        world = draw_cells(cell_list, world)
+        print("World: ", world)
+
